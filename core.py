@@ -17,7 +17,6 @@ def play_sound_on_cli(command):
     if not config:
         print("No configurations found")
         return
-    print(command)
     if len(command.split()) > 2:
         words = command.split()[:2]
         if " ".join(words) in config:
