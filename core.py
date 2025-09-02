@@ -1,3 +1,8 @@
+import sys
+import os
+import json
+from sounds import play_sound_file
+
 def play_sound_on_cli(command):
     if os.path.exists("config.json") and os.path.getsize("config.json") > 0:
         try:
@@ -12,7 +17,7 @@ def play_sound_on_cli(command):
     if not config:
         print("No configurations found")
         return
-    
+    print(command)
     if len(command.split()) > 2:
         words = command.split()[:2]
         if " ".join(words) in config:
@@ -21,3 +26,6 @@ def play_sound_on_cli(command):
             play_sound_file(config[words[0]])
     elif command in config:
         play_sound_file(config[command])
+
+if __name__ == '__main__':
+    play_sound_on_cli(sys.argv[1])

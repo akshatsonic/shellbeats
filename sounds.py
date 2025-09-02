@@ -1,6 +1,8 @@
 import shutil
 from terminaltables import SingleTable
 import os
+import subprocess
+import threading
 
 def add_sound():
     print("Name of the sound:")
@@ -38,10 +40,14 @@ def play_sound_file(sound_name):
     if not shutil.os.path.exists(f"sounds/{sound_name}.wav") and not shutil.os.path.exists(f"sounds/{sound_name}.mp3"):
         raise ValueError(f"Sound '{sound_name}' not found in sounds directory")
     
+    thread = threading.Thread(target=play_sound_file_thread, args=(sound_name,))
+    thread.start()
+
+def play_sound_file_thread(sound_name):
     if shutil.os.path.exists(f"sounds/{sound_name}.wav"):
-        os.system(f"afplay sounds/{sound_name}.wav")
+        subprocess.run(["afplay", f"sounds/{sound_name}.wav"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     else:
-        os.system(f"afplay sounds/{sound_name}.mp3")
+        subprocess.run(["afplay", f"sounds/{sound_name}.mp3"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def play_sound():
     table_data = list_sounds()
