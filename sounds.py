@@ -21,11 +21,15 @@ def add_sound():
     shutil.copyfile(src=path, dst=f"sounds/{name}.{path.split('.')[-1]}")
     print("Sound added successfully")
 
-def list_sounds() -> list:
+def list_sounds(show_table: bool = True) -> list:
     sounds = []
     for sound in sorted(os.listdir("sounds")):
         if sound.endswith(('.wav', '.mp3')):
             sounds.append([sound.split('.')[0]])
+    
+    print("\033[92m\033[1mAvailable sounds:\033[0m")
+    for i, sound in enumerate(sounds, 1):
+        print(f"{i}. {sound[0]}")
     return sounds
 
 
@@ -47,10 +51,6 @@ def play_sound():
     if not sounds:
         print("No sounds found in the sounds directory")
         return
-    
-    print("\033[92m\033[1mAvailable sounds:\033[0m")
-    for i, sound in enumerate(sounds, 1):
-        print(f"{i}. {sound[0]}")
     
     print("\n\033[92m\033[1mEnter the number of the sound to play:\033[0m")
     try:
