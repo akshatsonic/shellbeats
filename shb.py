@@ -1,9 +1,8 @@
 import argparse
 from sounds import add_sound, list_sounds, play_sound, remove_sound
-from configure import add_configuration
+from configure import add_configuration, list_configurations, remove_configuration
 import exception_handler
 import sys
-
 
 def main():
     parser = argparse.ArgumentParser(description="Shellbeats CLI Tool")
@@ -17,6 +16,8 @@ def main():
 
     config_parser = command_subparsers.add_parser('configure', help='Command to run')
     config_parser.add_argument('-a','--add', action='store_true', help='Add a new configuration for a cli command')
+    config_parser.add_argument('-l','--list', action='store_true', help='List all configurations')
+    config_parser.add_argument('-r','--remove', action='store_true', help='Remove a configuration')
     
     
     args = parser.parse_args()
@@ -32,6 +33,10 @@ def main():
     elif args.command == 'configure':
         if args.add:
             add_configuration()
+        elif args.list:
+            list_configurations()
+        elif args.remove:
+            remove_configuration()
     else:
         parser.print_help()
 
