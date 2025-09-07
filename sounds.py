@@ -1,5 +1,4 @@
 import shutil
-from terminaltables import SingleTable
 import os
 import subprocess
 import threading
@@ -22,18 +21,12 @@ def add_sound():
     shutil.copyfile(src=path, dst=f"sounds/{name}.{path.split('.')[-1]}")
     print("Sound added successfully")
 
-def list_sounds() -> map:
-    sound_count = len(shutil.os.listdir("sounds"))
-    table_data = [["No.", "Sound Name"]]
-    for cnt, sound in enumerate(shutil.os.listdir("sounds"), start=1):
-        table_data.append([str(cnt).zfill(len(str(sound_count))), sound.split('.')[0]])
-    print(f"\033[92m\033[1mAvailable Sounds: {sound_count}\033[0m")
-    table = SingleTable(table_data)
-    table.inner_column_border = True
-    table.justify_columns = {0: "center", 1: "left"}
-    table.inner_heading_row_border = True
-    print(table.table)
-    return table_data
+def list_sounds() -> list:
+    sounds = []
+    for sound in sorted(os.listdir("sounds")):
+        if sound.endswith(('.wav', '.mp3')):
+            sounds.append([sound.split('.')[0]])
+    return sounds
 
 
 def play_sound_file(sound_name):
@@ -50,35 +43,48 @@ def play_sound_file_thread(sound_name):
         subprocess.run(["afplay", f"sounds/{sound_name}.mp3"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def play_sound():
-    table_data = list_sounds()
-
-    print("\033[92m\033[1mEnter the serial number of the sound to play:\033[0m")
+    sounds = list_sounds()
+    if not sounds:
+        print("No sounds found in the sounds directory")
+        return
+    
+    print("\033[92m\033[1mAvailable sounds:\033[0m")
+    for i, sound in enumerate(sounds, 1):
+        print(f"{i}. {sound[0]}")
+    
+    print("\n\033[92m\033[1mEnter the number of the sound to play:\033[0m")
     try:
-        serial_number = int(input())
-        if serial_number < 1 or serial_number >= len(table_data):
-            raise ValueError("Invalid serial number")
-        sound_name = table_data[serial_number][1]  # Get the sound name from the table
-        play_sound_file(sound_name)
-    except ValueError as e:
-        if "invalid literal for int()" in str(e):
-            raise ValueError("Please enter a valid number") from e
-        raise ValueError("Invalid serial number")
+        choice = int(input().strip())
+        if 1 <= choice <= len(sounds):
+            play_sound_file(sounds[choice-1][0])
+        else:
+            print("Invalid choice")
+    except ValueError:
+        print("Please enter a valid number")
 
 def remove_sound():
-    table_data = list_sounds()
-    print("\033[92m\033[1mEnter the serial number of the sound to remove:\033[0m")
+    sounds = list_sounds()
+    if not sounds:
+        print("No sounds found in the sounds directory")
+        return
+    
+    print("\033[92m\033[1mAvailable sounds to remove:\033[0m")
+    for i, sound in enumerate(sounds, 1):
+        print(f"{i}. {sound[0]}")
+    
+    print("\n\033[92m\033[1mEnter the number of the sound to remove:\033[0m")
     try:
-        serial_number = int(input())
-        if serial_number < 1 or serial_number >= len(table_data):
-            raise ValueError("Invalid serial number")
-        sound_name = table_data[serial_number][1]  # Get the sound name from the table
-        sound_files = [f"sounds/{sound_name}.wav", f"sounds/{sound_name}.mp3"]
-        for sound_file in sound_files:
-            if os.path.exists(sound_file):
-                os.remove(sound_file)
-                break
-        print(f"Sound '{sound_name}' removed successfully")
-    except ValueError as e:
-        if "invalid literal for int()" in str(e):
-            raise ValueError("Please enter a valid number") from e
-        raise ValueError("Invalid serial number")
+        choice = int(input().strip())
+        if 1 <= choice <= len(sounds):
+            sound_name = sounds[choice-1][0]
+            sound_files = [f"sounds/{sound_name}.wav", f"sounds/{sound_name}.mp3"]
+            for sound_file in sound_files:
+                if os.path.exists(sound_file):
+                    os.remove(sound_file)
+                    print(f"Sound '{sound_name}' removed successfully")
+                    return
+            print(f"Sound file for '{sound_name}' not found")
+        else:
+            print("Invalid choice")
+    except ValueError:
+        print("Please enter a valid number")
